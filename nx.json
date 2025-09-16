@@ -39,7 +39,37 @@
       "options": {
         "targetName": "test"
       },
-      "exclude": ["apps/microservices-backend-e2e/**/*"]
+      "exclude": [
+        "apps/microservices-backend-e2e/**/*",
+        "api-gateway-e2e/**/*",
+        "product-service-e2e/**/*",
+        "order-service-e2e/**/*"
+      ]
+    },
+    {
+      "plugin": "@nx/next/plugin",
+      "options": {
+        "startTargetName": "start",
+        "buildTargetName": "build",
+        "devTargetName": "dev",
+        "serveStaticTargetName": "serve-static",
+        "buildDepsTargetName": "build-deps",
+        "watchDepsTargetName": "watch-deps"
+      }
+    },
+    {
+      "plugin": "@nx/playwright/plugin",
+      "options": {
+        "targetName": "e2e"
+      }
     }
-  ]
+  ],
+  "generators": {
+    "@nx/next": {
+      "application": {
+        "style": "tailwind",
+        "linter": "eslint"
+      }
+    }
+  }
 }
