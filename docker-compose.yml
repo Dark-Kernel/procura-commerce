@@ -1,0 +1,48 @@
+version: '3.8'
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: microdb
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+    ports: ['5432:5432']
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  product-service:
+    build: ./product-service
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: user
+      DB_PASS: pass
+      DB_NAME: microdb
+      PRODUCT_PORT: 3001
+    depends_on: [postgres]
+
+  order-service:
+    build: ./order-service
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: user
+      DB_PASS: pass
+      DB_NAME: microdb
+      ORDER_PORT: 4002
+    depends_on: [postgres]
+
+  api-gateway:
+    build: ./api-gateway
+    ports: ['3000:3000']
+    environment:
+      PRODUCT_HOST: product-service
+      PRODUCT_PORT: 3001
+      ORDER_HOST: order-service
+      ORDER_PORT: 3002
+      JWT_SECRET: topsecret
+    depends_on: [product-service, order-service]
+
+volumes:
+  pgdata:
+
