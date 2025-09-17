@@ -3,66 +3,125 @@ import { AppService } from './app.service';
 import { Inject } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiProperty } from '@nestjs/swagger';
 
 import { lastValueFrom } from 'rxjs';
 
-import { IsArray, IsNotEmpty, IsNumber, IsObject, IsString, IsOptional} from 'class-validator';
+import { IsArray, IsNotEmpty, IsNumber, IsObject, IsString, IsOptional, ValidateNested} from 'class-validator';
 import { Type } from 'class-transformer';
 
+// DTOs for Order
+class CustomerDto {
+  @ApiProperty()
+  @IsString()
+  name: string;
+
+  @ApiProperty()
+  @IsString()
+  phone: string;
+}
+
+class ProductOrderItemDto {
+  @ApiProperty()
+  @IsString()
+  productCode: string;
+
+  @ApiProperty()
+  @IsNumber()
+  quantity: number;
+}
+
 export class CreateOrderDto {
+  @ApiProperty({ type: CustomerDto })
   @IsObject()
-  @IsNotEmpty()
-  customer: {
-    name: string;
-    phone: string;
-  };
+  @ValidateNested()
+  @Type(() => CustomerDto)
+  customer: CustomerDto;
 
+  @ApiProperty({ type: [ProductOrderItemDto] })
   @IsArray()
-  @IsNotEmpty()
-  products: {
-    productCode: string;
-    quantity: number;
-  }[];
+  @ValidateNested({ each: true })
+  @Type(() => ProductOrderItemDto)
+  products: ProductOrderItemDto[];
 
+  @ApiProperty()
   @IsNumber()
   totalAmount: number;
 }
 
 export class UpdateOrderDto {
+  @ApiProperty({ type: CustomerDto, required: false })
   @IsOptional()
   @IsObject()
-  customer?: {
-    name: string;
-    phone: string;
-  };
+  @ValidateNested()
+  @Type(() => CustomerDto)
+  customer?: CustomerDto;
 
+  @ApiProperty({ type: [ProductOrderItemDto], required: false })
   @IsOptional()
   @IsArray()
-  products?: {
-    productCode: string;
-    quantity: number;
-  }[];
+  @ValidateNested({ each: true })
+  @Type(() => ProductOrderItemDto)
+  products?: ProductOrderItemDto[];
 
+  @ApiProperty({ required: false })
   @IsOptional()
   @IsNumber()
   totalAmount?: number;
 }
 
+// DTOs for Product
 export class CreateProductDto {
-  @IsString() code: string;
-  @IsString() name: string;
-  @IsOptional() @IsString() description?: string;
-  @Type(() => Number) @IsNumber() rate: number;
-  @IsOptional() @IsString() image?: string;
+  @ApiProperty()
+  @IsString() 
+  code: string;
+
+  @ApiProperty()
+  @IsString() 
+  name: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional() 
+  @IsString() 
+  description?: string;
+
+  @ApiProperty()
+  @Type(() => Number) 
+  @IsNumber() 
+  rate: number;
+
+  @ApiProperty({ required: false })
+  @IsOptional() 
+  @IsString() 
+  image?: string;
 }
 
 export class UpdateProductDto {
-  @IsOptional() @IsString() code?: string;
-  @IsOptional() @IsString() name?: string;
-  @IsOptional() @IsString() description?: string;
-  @IsOptional() @Type(() => Number) @IsNumber() rate?: number;
-  @IsOptional() @IsString() image?: string;
+  @ApiProperty({ required: false })
+  @IsOptional() 
+  @IsString() 
+  code?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional() 
+  @IsString() 
+  name?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional() 
+  @IsString() 
+  description?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional() 
+  @Type(() => Number) 
+  @IsNumber() 
+  rate?: number;
+
+  @ApiProperty({ required: false })
+  @IsOptional() 
+  @IsString() 
+  image?: string;
 }
 
 
