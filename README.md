@@ -79,6 +79,11 @@ An interactive Swagger UI is generated automatically for API testing and documen
 
 ### Postman Collection
 
+- Invite for the Postman collection: [click here](https://app.getpostman.com/join-team?invite_code=6c0cb976086af28ac4000e41e13d4b7095e6d81042f81065fafa15f64c283db4&target_code=c44ef47e2405c3c7ea2d7c0d99ce4eae)
+- Guest url : [clickme](https://restless-meadow-337743.postman.co/workspace/My-Workspace~99108b46-1ab8-41a8-8231-44739c6eeff3/collection/23537667-2daaec03-03df-4208-9543-5a7af93745af?action=share&creator=23537667)
+
+or 
+
 A Postman collection can be generated directly from the Swagger/OpenAPI specification.
 
 1.  Open Postman and click the **Import** button.
@@ -88,7 +93,7 @@ A Postman collection can be generated directly from the Swagger/OpenAPI specific
 
 ---
 
-## Running Tests
+## Running Tests (NOT IMPLEMENTED YET)
 
 To run the unit and end-to-end tests for all services, you can use the Nx command:
 
