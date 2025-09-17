@@ -1,26 +1,38 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
+import { Order } from './entities/order.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class OrderService {
+  constructor(@InjectRepository(Order) private repo: Repository<Order>) {}
   create(createOrderDto: CreateOrderDto) {
-    return 'This action adds a new order';
+    const p = this.repo.create({...createOrderDto, products: createOrderDto.products, customer: createOrderDto.customer, totalAmount: createOrderDto.totalAmount.toFixed(2)});
+    return this.repo.save(p);
+    // return 'This action adds a new order';
   }
 
   findAll() {
-    return `This action returns all order`;
+    return this.repo.find();
+    // return `This action returns all order`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} order`;
+  findOne(id: string) {
+    return this.repo.findOne({where: {id}});
+    // return `This action returns a #${id} order`;
   }
 
-  update(id: number, updateOrderDto: UpdateOrderDto) {
-    return `This action updates a #${id} order`;
+  async update(id: string, updateOrderDto: UpdateOrderDto) {
+    await this.repo.update(id, {...updateOrderDto, totalAmount: updateOrderDto.totalAmount.toFixed(2)});
+    return this.findOne(id);
+    // return `This action updates a #${id} order`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} order`;
+  remove(id: string) {
+    return this.repo.delete(id);
+    // return `This action removes a #${id} order`;
   }
+
 }

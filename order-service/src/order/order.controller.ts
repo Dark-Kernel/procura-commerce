@@ -2,33 +2,34 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { OrderService } from './order.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
+import { MessagePattern, Payload } from '@nestjs/microservices';
 
 @Controller('order')
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}
 
-  @Post()
-  create(@Body() createOrderDto: CreateOrderDto) {
+  @MessagePattern({ cmd: 'order.create' })
+  create(@Payload() createOrderDto: CreateOrderDto) {
     return this.orderService.create(createOrderDto);
   }
 
-  @Get()
+  @MessagePattern({ cmd: 'order.findAll' })
   findAll() {
     return this.orderService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.orderService.findOne(+id);
+  @MessagePattern({ cmd: 'order.findOne' })
+  findOne(@Payload() id: string) {
+    return this.orderService.findOne(id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateOrderDto: UpdateOrderDto) {
-    return this.orderService.update(+id, updateOrderDto);
+  @MessagePattern({ cmd: 'order.update' })
+  update(@Payload() payload: { id: string, updateOrderDto: Partial<UpdateOrderDto> }) {
+    return this.orderService.update(payload.id, payload.updateOrderDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.orderService.remove(+id);
+  @MessagePattern({ cmd: 'order.remove' })
+  remove(@Payload() id: string) {
+    return this.orderService.remove(id);
   }
 }
