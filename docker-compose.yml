@@ -1,48 +1,105 @@
-version: '3.8'
 services:
-  postgres:
-    image: postgres:15
-    environment:
-      POSTGRES_DB: microdb
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: pass
-    ports: ['5432:5432']
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-
   product-service:
-    build: ./product-service
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: product-service-production
     environment:
-      DB_HOST: postgres
-      DB_PORT: 5432
-      DB_USER: user
-      DB_PASS: pass
-      DB_NAME: microdb
-      PRODUCT_PORT: 3001
-    depends_on: [postgres]
+      - NODE_ENV=production
+      - PORT=3001
+      - DB_HOST=product-db
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASS=postgres
+      - DB_NAME=products
+    depends_on:
+      - product-db
+    ports:
+      - "3001:3001"
+    restart: unless-stopped
+
+  product-db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: products
+    volumes:
+      - product_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    restart: unless-stopped
 
   order-service:
-    build: ./order-service
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: order-service-production
     environment:
-      DB_HOST: postgres
-      DB_PORT: 5432
-      DB_USER: user
-      DB_PASS: pass
-      DB_NAME: microdb
-      ORDER_PORT: 4002
-    depends_on: [postgres]
+      - NODE_ENV=production
+      - PORT=3002
+      - DB_HOST=order-db
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASS=postgres
+      - DB_NAME=orders
+    depends_on:
+      - order-db
+    ports:
+      - "3002:3002"
+    restart: unless-stopped
+
+  order-db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: orders
+    volumes:
+      - order_data:/var/lib/postgresql/data
+    ports:
+      - "5434:5432"
+    restart: unless-stopped
 
   api-gateway:
-    build: ./api-gateway
-    ports: ['3000:3000']
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: api-gateway-production
     environment:
-      PRODUCT_HOST: product-service
-      PRODUCT_PORT: 3001
-      ORDER_HOST: order-service
-      ORDER_PORT: 3002
-      JWT_SECRET: topsecret
-    depends_on: [product-service, order-service]
+      - NODE_ENV=production
+      - PRODUCT_HOST=product-service
+      - PRODUCT_PORT=3001
+      - ORDER_HOST=order-service
+      - ORDER_PORT=3002
+      - JWT_SECRET=supersecret
+      - PORT=3000
+    depends_on:
+      - product-service
+      - order-service
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: frontend-production
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=http://api-gateway:3000
+    depends_on:
+      - api-gateway
+    ports:
+      - "4000:3000"
+    restart: unless-stopped
 
 volumes:
-  pgdata:
+  product_data:
+  order_data:
+
+networks:
+  default:
+    name: microservices-network
 
